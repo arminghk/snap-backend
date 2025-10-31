@@ -9,7 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   const configService = app.get(ConfigService);
-  const port = configService.get('PORT');
+  const port = configService.get('App.port');
   await app.listen(port);
   console.log(`🚀 Server running on port ${port}`);
 }
