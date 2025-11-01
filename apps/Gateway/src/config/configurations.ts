@@ -6,7 +6,14 @@
 import {registerAs} from "@nestjs/config";
 
 const AppConfig = registerAs('App', () => ({
+  version:'v1',
   port: 3000,
 }));
 
-export const configurations = [AppConfig];
+const SwaggerConfig = registerAs('Swagger', () => ({
+  title:'snap-backend',
+  description:'this is online trasporter application',
+  version:'1.0.0'
+}));
+
+export const configurations = [AppConfig , SwaggerConfig];
