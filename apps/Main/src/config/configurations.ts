@@ -1,0 +1,19 @@
+// export default () => ({
+//   port: parseInt(process.env.PORT ?? '3000', 10) || 3000
+// });
+
+
+import {registerAs} from "@nestjs/config";
+
+const DatabaseConfig = registerAs('Database', () => ({
+  database: 'snappdb',
+  username: 'snapp',
+  password: 'snapp_pass',
+  host: 'localhost',
+  port: 5432,
+  dialect: 'postgres',
+}));
+
+
+
+export const configurations = [DatabaseConfig];
