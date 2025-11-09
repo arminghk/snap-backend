@@ -24,7 +24,7 @@ export class SelfActionService {
     if (!provider || !provider[actionName])
       throw new Error('err_service_actionNotFound');
 
-    const response = await provider[actionName](); 
+    const response = await provider[actionName](data.query); 
 
     return {
       message: response?.message ?? 'Ok',
