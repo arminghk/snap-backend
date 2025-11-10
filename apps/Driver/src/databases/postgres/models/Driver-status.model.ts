@@ -23,7 +23,7 @@ export enum DriverState {
 export class DriverStatus extends Model {
   @ForeignKey(() => Driver)
   @Column({
-    type: DataType.UUID,
+    type: DataType.INTEGER,
     allowNull: false,
     unique: true,
   })

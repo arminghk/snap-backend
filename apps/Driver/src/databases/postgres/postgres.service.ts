@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
-import * as models from './models'; 
+import * as models from './models';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -30,18 +30,30 @@ export class PostgresService implements OnModuleInit {
       models.DriverStatus,
       models.DriverOtp,
     ]);
-    models.Driver.hasOne(models.DriverStatus, {foreignKey: 'driverId',as: 'status',});
-    models.DriverStatus.belongsTo(models.Driver, { foreignKey: 'driverId',as: 'driver',});
+    models.Driver.hasOne(models.DriverStatus, {
+      foreignKey: 'driverId',
+      as: 'status',
+    });
+    models.DriverStatus.belongsTo(models.Driver, {
+      foreignKey: 'driverId',
+      as: 'driver',
+    });
 
-    models.Driver.hasOne(models.DriverProfile, {foreignKey: 'driverId',as: 'profile' });
-    models.DriverProfile.belongsTo(models.Driver, {foreignKey: 'driverId', as: 'driver'});
+    models.Driver.hasOne(models.DriverProfile, {
+      foreignKey: 'driverId',
+      as: 'profile',
+    });
+    models.DriverProfile.belongsTo(models.Driver, {
+      foreignKey: 'driverId',
+      as: 'driver',
+    });
 
-    models.Driver.hasOne(models.DriverOtp, {foreignKey: 'driverId',as: 'otps',});
-    models.DriverOtp.belongsTo(models.Driver, {foreignKey: 'driverId',as: 'driver',});
 
     try {
       await sequelizeInstance.authenticate();
       this.logger.log('✅ Database connection established successfully!');
+      await sequelizeInstance.sync({ alter: true });
+      this.logger.log('✅ All models synchronized successfully!');
     } catch (error) {
       this.logger.error('Database connection failed');
       this.logger.error(error);

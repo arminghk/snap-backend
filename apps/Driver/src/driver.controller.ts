@@ -6,8 +6,8 @@ import { DriverService } from './driver.service';
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
-  @MessagePattern({ cmd: 'driver_signup' })
-  async signUp(data: any) {
-    return this.driverService.signUp(data);
+  @MessagePattern({ cmd: 'driver_requsetOtp' })
+  async requsetOtp(data: any) {
+    return this.driverService.requsetOtp(data);
   }
 }

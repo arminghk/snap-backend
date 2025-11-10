@@ -6,9 +6,9 @@ import { ClientProxy } from '@nestjs/microservices';
 export class DriversService {
   constructor(@Inject('DRIVER') private driverClient: ClientProxy) {}
 
-  async signUp(data:any) {
+  async requsetOtp(data:any) {
     const result = await lastValueFrom(
-      this.driverClient.send({ cmd: 'driver_signup' }, data),
+      this.driverClient.send({ cmd: 'driver_requsetOtp' }, data),
     );
     return result;
   }

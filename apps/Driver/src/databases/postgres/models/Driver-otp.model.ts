@@ -8,12 +8,13 @@ import { Driver } from './Driver.model';
   freezeTableName: true,
 })
 export class DriverOtp extends Model {
-  @ForeignKey(() => Driver)
+
   @Column({
-    type: DataType.UUID,
+    type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
-  driverId!: string;
+  phone!: string;
 
   @Column({
     type: DataType.STRING,

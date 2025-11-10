@@ -9,7 +9,7 @@ import { Driver } from './Driver.model';
 export class DriverProfile extends Model {
   @ForeignKey(() => Driver)
   @Column({
-    type: DataType.UUID,
+    type: DataType.INTEGER,
     allowNull: false,
     unique: true,
   })
