@@ -28,7 +28,6 @@ export class PostgresService implements OnModuleInit {
       models.Driver,
       models.DriverProfile,
       models.DriverStatus,
-      models.DriverOtp,
     ]);
     models.Driver.hasOne(models.DriverStatus, {
       foreignKey: 'driverId',

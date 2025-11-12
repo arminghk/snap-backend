@@ -2,8 +2,7 @@
 //   port: parseInt(process.env.PORT ?? '3000', 10) || 3000
 // });
 
-
-import {registerAs} from "@nestjs/config";
+import { registerAs } from '@nestjs/config';
 
 const DatabaseConfig = registerAs('Database', () => ({
   database: 'snappdb',
@@ -14,6 +13,11 @@ const DatabaseConfig = registerAs('Database', () => ({
   dialect: 'postgres',
 }));
 
+const RedisConfig = registerAs('Redis', () => ({
+  host: 'localhost',
+  port: 6379,
+  cacheDb: 11,
+  sessionDb: 12,
+}));
 
-
-export const configurations = [DatabaseConfig];
+export const configurations = [DatabaseConfig ,RedisConfig];

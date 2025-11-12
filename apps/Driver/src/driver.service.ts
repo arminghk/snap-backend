@@ -2,34 +2,27 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from './databases/postgres/postgres.service';
 import { Op } from 'sequelize';
+import { RedisService } from './databases/redis/redis.service';
 
 @Injectable()
 export class DriverService {
-  constructor(private readonly pg: PostgresService) {}
+  constructor(
+    private readonly pg: PostgresService,
+    private readonly redisService: RedisService,
+  ) {}
 
   async requsetOtp(data: any) {
-    let { phone } = data;
-    const existingOtp = await this.pg.models.DriverOtp.findOne({
-      where: {
-        phone,
-        isUsed: false,
-        expiresAt: { [Op.gt]: new Date() },
-      },
-    });
+    const { phone } = data;
+    const existingOtp = await this.redisService.cacheCli.get(`otp:${phone}`);
     if (existingOtp) {
       throw new BadRequestException('OTP already sent, please wait');
     }
 
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+    const ttlSeconds = 2 * 60;
 
-    const newOtp = await this.pg.models.DriverOtp.create({
-      phone,
-      otp: otpCode,
-      expiresAt,
-      isUsed: false,
-    });
+    await this.redisService.cacheCli.set(`otp:${phone}`,otpCode, 'EX',ttlSeconds);
 
-    return newOtp;
+    return { phone, otp: otpCode, expiresIn: ttlSeconds };
   }
 }
