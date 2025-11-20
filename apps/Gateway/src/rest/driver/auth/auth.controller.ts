@@ -1,17 +1,17 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { DriverAuthService } from './auth.service';
 import { ApiOperation } from '@nestjs/swagger';
-import { DriverSignUpInputDto } from 'src/dtos/driver.dto';
+import { DriverRequestOtpInputDto } from 'src/dtos/driver.dto';
 
 
 @Controller('Auth')
 export class DriverAuthController {
   constructor(private readonly driverAuthService: DriverAuthService) {}
 
-  @Post('signup')
-  @ApiOperation({ summary: 'SignUp in app by phone number' })
-  async signUp(body: DriverSignUpInputDto) {
-    const signUpData = await this.driverAuthService.signUp(body);
-    return signUpData
+  @Post('request-otp')
+  @ApiOperation({ summary: 'Request otp in app by phone number' })
+  async requestOtp(@Body() body: DriverRequestOtpInputDto) {
+    const requestOtpData = await this.driverAuthService.requestOtp(body);
+    return requestOtpData
   }
 }
