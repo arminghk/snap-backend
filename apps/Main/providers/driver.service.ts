@@ -1,35 +1,50 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
-import { ServiceClientContextDto, ServiceResponseData, SrvError } from 'src/services/dto';
+import {
+  ServiceClientContextDto,
+  ServiceResponseData,
+  SrvError,
+} from 'src/services/dto';
+import { TokenService } from 'src/utils/handlers/token.service';
+
 
 @Injectable()
 export class DriversService {
   private static readonly role = 'driver';
   constructor(
     private readonly pg: PostgresService,
-    private readonly redis: RedisService
+    private readonly redis: RedisService,
+    private readonly tokenService: TokenService,
   ) {}
 
-  async requestOtp({ query }: ServiceClientContextDto):Promise<ServiceResponseData> {
-    let {phone} = query
+  async requestOtp({
+    query,
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
+    let { phone } = query;
     const key = `otp:${DriversService.role}:${phone}`;
     const existing = await this.redis.cacheCli.get(key);
-    if (existing) throw new SrvError(HttpStatus.BAD_REQUEST, 'OTP already sent');
+    if (existing)
+      throw new SrvError(HttpStatus.BAD_REQUEST, 'OTP already sent');
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const ttl = 2 * 60;
     await this.redis.cacheCli.set(key, otp, 'EX', ttl);
 
     return {
-      message:'OTP send successfully!',
-      data:{
-        success: true, otp, phone, expiresIn: ttl 
-      }
+      message: 'OTP send successfully!',
+      data: {
+        success: true,
+        otp,
+        phone,
+        expiresIn: ttl,
+      },
     };
   }
 
-  async verifyOtp({ query }: ServiceClientContextDto): Promise<ServiceResponseData> {
+  async verifyOtp({
+    query,
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
     const { phone, otp } = query;
     const key = `otp:${DriversService.role}:${phone}`;
 
@@ -44,14 +59,19 @@ export class DriversService {
 
     await this.redis.cacheCli.del(key);
 
-     let driver = await this.pg.models.Driver.findOne({ where: { phone } });
+    let driver = await this.pg.models.Driver.findOne({ where: { phone } });
     if (!driver) {
-        driver = await this.pg.models.Driver.create({ phone });
+      driver = await this.pg.models.Driver.create({ phone });
     }
 
     const newSession = await this.pg.models.DriverSession.create({
-        driverId: driver.id,
-        refreshExpiresAt: +new Date() 
+      driverId: driver.id,
+      refreshExpiresAt: +new Date(),
+    });
+
+    const accessToken = this.tokenService.generateAccessToken({
+      driverId: driver.id,
+      sessionId: newSession.id,
     });
 
     return {
@@ -59,6 +79,7 @@ export class DriversService {
       data: {
         success: true,
         phone,
+        accessToken
       },
     };
   }
