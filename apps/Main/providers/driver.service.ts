@@ -74,6 +74,11 @@ export class DriversService {
       sessionId: newSession.id,
     });
 
+    await newSession.update({
+            refreshExpiresAt: accessToken.payload.refreshExpiresAt,
+    });
+    await newSession.reload();
+
     return {
       message: 'OTP verified successfully!',
       data: {
