@@ -147,10 +147,10 @@ async authorize({
   return {
     data: {
       isAuthorized,
+      tokenData,
       driver,
       session,
       clearCookie,
-      hasFullAccess: false,
       isActive: driver?.isActive ?? null,
     },
   };

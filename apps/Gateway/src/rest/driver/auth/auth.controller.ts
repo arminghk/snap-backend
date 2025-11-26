@@ -45,6 +45,6 @@ export class DriverAuthController {
   @Get('profile')
   @ApiOperation({ summary: 'Get driver profile' })
   async getProfile(@Request() req) {
-    return req.user
+    return req.driver
   }
 }
