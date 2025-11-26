@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { DriversService } from 'providers/driver.service';
+import { DriversService } from 'src/providers/driver.service';
 import { ServiceClientActionInputDto, ServiceResponseData } from './dto';
 import _ from 'lodash'
 

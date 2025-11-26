@@ -37,6 +37,9 @@ importers:
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
+      config:
+        specifier: ^4.1.1
+        version: 4.1.1
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -140,12 +143,21 @@ importers:
       '@nestjs/sequelize':
         specifier: ^11.0.1
         version: 11.0.1(@nestjs/common@11.1.7(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.7)(reflect-metadata@0.2.2)(rxjs@7.8.2)(sequelize-typescript@2.1.6(@types/node@22.18.12)(@types/validator@13.15.4)(reflect-metadata@0.2.2)(sequelize@6.37.7(pg@8.16.3)))(sequelize@6.37.7(pg@8.16.3))
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
+      config:
+        specifier: ^4.1.1
+        version: 4.1.1
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -1469,6 +1481,10 @@ packages:
     resolution: {integrity: sha512-UYmTpOBwgPScZpS4A+YbapwWuBwasxvO/2IOHArSsAhL/+ZdmATBXTex3t+l2hXwLVYK382ibr/nKoY9GKe86w==}
     hasBin: true
 
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
+    hasBin: true
+
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
@@ -1636,6 +1652,10 @@ packages:
   concat-stream@2.0.0:
     resolution: {integrity: sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==}
     engines: {'0': node >= 6.0}
+
+  config@4.1.1:
+    resolution: {integrity: sha512-jljfwqNZ7QHwAW9Z9NDZdJARFiu5pjLqQO0K4ooY22iY/bIY78n0afI4ANEawfgQOxri0K/3oTayX8XIauWcLA==}
+    engines: {node: '>= 20.0.0'}
 
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
@@ -4942,6 +4962,8 @@ snapshots:
 
   baseline-browser-mapping@2.8.18: {}
 
+  bcryptjs@3.0.3: {}
+
   bl@4.1.0:
     dependencies:
       buffer: 5.7.1
@@ -5109,6 +5131,10 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
       typedarray: 0.0.6
+
+  config@4.1.1:
+    dependencies:
+      json5: 2.2.3
 
   consola@3.4.2: {}
 

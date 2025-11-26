@@ -1,5 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AuthorizeOutputDto } from "src/dtos/public.dto";
+import { AdminSessionModel, AdminSignInInputDto, AdminSignInOutputDto, GetAdminProfileOutputDto } from "src/dtos/admin.dto";
+import { AuthorizeOutputDto, StatusResponseDto } from "src/dtos/public.dto";
+import { handleSrvCliResponse } from "src/response/httpException.filter";
 import { MainServiceClient } from "src/services/main.service";
 
 
@@ -33,7 +35,7 @@ export class AdminAuthService {
 
     async signOut(session: AdminSessionModel): Promise<StatusResponseDto> {
         const data = await this.mainSrvCli.callAction({
-            provider: MainServiceProvidersEnum.ADMINS,
+            provider: 'ADMIN',
             action: "signOut",
             query: {
                 id: session.id

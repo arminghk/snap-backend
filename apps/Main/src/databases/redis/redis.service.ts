@@ -1,7 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
+import config from 'config';
+const redisConfig: any = config.get('databases.redis');
 
 @Injectable()
 export class RedisService implements OnModuleInit {
@@ -10,12 +11,11 @@ export class RedisService implements OnModuleInit {
   public cacheCli !: Redis ;
   public sessionCli !: Redis ;
 
-  constructor(private configService: ConfigService) {}
   async onModuleInit() {
     const cacheClient = new Redis({
-      host: this.configService.get('Redis.host'),
-      port: this.configService.get('Redis.port'),
-      db: this.configService.get('Redis.cacheDb'),
+      host: redisConfig.get('Redis.host'),
+      port: redisConfig.get('Redis.port'),
+      db: redisConfig.get('Redis.cacheDb'),
     });
     cacheClient.on('error', (e) => {
       this.logger.fatal('cacheClient connecting error');
@@ -28,9 +28,9 @@ export class RedisService implements OnModuleInit {
     this.cacheCli = cacheClient;
 
     const sessionClient = new Redis({
-      host: this.configService.get('Redis.host'),
-      port: this.configService.get('Redis.port'),
-      db: this.configService.get('Redis.sessionDb'),
+      host: redisConfig.get('Redis.host'),
+      port: redisConfig.get('Redis.port'),
+      db: redisConfig.get('Redis.sessionDb'),
     });
 
     sessionClient.on('error', (e) => {

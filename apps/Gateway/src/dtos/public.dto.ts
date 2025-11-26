@@ -19,3 +19,14 @@ export interface RequestWithUserData extends Request {
     acc_isActive?: boolean;
     acc_type?: "ADMIN" | "DRIVER";
 }
+export enum ActionStatusEnum {
+    DELETED = "DELETED",
+    UPDATED = "UPDATED",
+    CREATED = "CREATED"
+}
+export class StatusResponseDto {
+
+    status?: ActionStatusEnum;
+    then?: any;
+    clearCookie?: string;
+}

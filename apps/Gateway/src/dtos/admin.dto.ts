@@ -71,3 +71,7 @@ export class GetAdminProfileOutputDto extends GetProfileOutputDto {
     @ApiProperty({ type: AdminSessionModel, required: false })
     session: AdminSessionModel;
 }
+
+export class AdminSignInOutputDto extends GetAdminProfileOutputDto {
+    tokenData: any
+}

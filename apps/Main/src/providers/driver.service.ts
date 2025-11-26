@@ -1,4 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { UtilsService } from 'src/_utils/utils.service';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
 import {
@@ -6,10 +7,7 @@ import {
   ServiceResponseData,
   SrvError,
 } from 'src/services/dto';
-import {
-  TokenAvailability,
-  TokenService,
-} from 'src/utils/handlers/token.service';
+
 
 @Injectable()
 export class DriversService {
@@ -17,7 +15,7 @@ export class DriversService {
   constructor(
     private readonly pg: PostgresService,
     private readonly redis: RedisService,
-    private readonly tokenService: TokenService,
+    private readonly utils: UtilsService,
   ) {}
 
   async requestOtp({
@@ -61,25 +59,25 @@ export class DriversService {
 
     await this.redis.cacheCli.del(key);
 
-    let driver = await this.pg.models.Driver.findOne({ where: { phone } });
-    if (!driver) {
-      driver = await this.pg.models.Driver.create({ phone });
+    let profile = await this.pg.models.Driver.findOne({ where: { phone } });
+    if (!profile) {
+      profile = await this.pg.models.Driver.create({ phone });
     }
 
     const newSession = await this.pg.models.DriverSession.create({
-      driverId: driver.id,
+      driverId: profile.id,
       refreshExpiresAt: +new Date(),
     });
 
-    const accessToken = this.tokenService.generateAccessToken({
-      driverId: driver.id,
-      sessionId: newSession.id,
-    });
-
-    await newSession.update({
-      refreshExpiresAt: accessToken.payload.refreshExpiresAt,
-    });
-    await newSession.reload();
+    const accessToken = new this.utils.JwtHandler.AccessToken(profile.id, "DRIVER");
+        const tokenData = accessToken.generate(newSession.id);
+        await newSession.update({
+            refreshExpiresAt: tokenData.payload.refreshExpiresAt,
+        });
+        await newSession.reload();
+        const _profile = await this.pg.models.Admin.scope('withoutPassword').findByPk(profile.id, {
+            raw: true
+        });
 
     return {
       message: 'OTP verified successfully!',
@@ -101,7 +99,7 @@ async authorize({
   let driver
   let session
 
-  const decodedToken: any = this.tokenService.decode(token);
+  const decodedToken: any = new this.utils.JwtHandler.decodeToken(token);
  
   if (decodedToken) {
     const driverId = decodedToken.did;
