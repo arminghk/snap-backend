@@ -1,3 +1,4 @@
+import { AdminModel, AdminSessionModel } from "./admin.dto";
 import { DriverModel, DriverSessionModel } from "./driver.dto";
 
 
@@ -10,4 +11,11 @@ export class AuthorizeOutputDto {
     ttl: number;
   };
   clearCookie?
+}
+
+export interface RequestWithUserData extends Request {
+    acc_profile?: DriverModel | AdminModel;
+    acc_session?: DriverSessionModel | AdminSessionModel;
+    acc_isActive?: boolean;
+    acc_type?: "ADMIN" | "DRIVER";
 }
