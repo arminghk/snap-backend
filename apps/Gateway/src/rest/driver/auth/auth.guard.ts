@@ -20,7 +20,7 @@ export class DriverAuthGuard implements CanActivate {
     if (!data.isAuthorized) throw new UnauthorizedException('err_auth_unauthorized');
 
     // Set request data
-    request.driver = data.driver;
+    request.driver = data.profile;
     request.session = data.session;
     request.acc_type = 'DRIVER';
 

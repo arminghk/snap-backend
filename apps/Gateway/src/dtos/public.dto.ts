@@ -4,13 +4,15 @@ import { DriverModel, DriverSessionModel } from "./driver.dto";
 
 export class AuthorizeOutputDto {
   isAuthorized: boolean;
-  driver?: DriverModel;
+  profile?: DriverModel;
   session?: DriverSessionModel;
   tokenData?: {
     token: string;
     ttl: number;
   };
-  clearCookie?
+  clearCookie?;
+  isActive?
+
 }
 
 export interface RequestWithUserData extends Request {

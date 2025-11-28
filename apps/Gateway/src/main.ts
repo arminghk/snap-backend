@@ -3,10 +3,10 @@ import { AppModule } from './app.module';
 import express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 
-import { setupSwagger } from './config/swagger.config';
+import { setupSwagger } from '../config/swagger.config';
 import cookieParser from 'cookie-parser';
 import config from 'config';
-const serviceOptions: any = config.get('service')
+const serviceOptions: any = config.get('server')
 
 async function bootstrap() {
   const server = express();
@@ -16,7 +16,7 @@ async function bootstrap() {
 
  
 
-  setupSwagger(app, serviceOptions);
+  setupSwagger(app, config);
 
   await app.listen(serviceOptions.port);
   console.log(`🚀 Server running on port ${serviceOptions.port}`);

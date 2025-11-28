@@ -9,11 +9,12 @@ interface SwaggerModuleItem {
   module?: any;
 }
 
-export function setupSwagger(app: INestApplication, serviceOptions) {
-  const apiVersion = serviceOptions.get('App.version');
-  const swaggerTitle = serviceOptions.get('Swagger.title');
-  const swaggerDescription = serviceOptions.get('Swagger.description');
-  const swaggerVersion = serviceOptions.get('Swagger.version');
+export function setupSwagger(app: INestApplication, cfg) {
+
+  const apiVersion = cfg.get('server.apiVersion');
+  const swaggerTitle = cfg.get('server.swagger.title');
+  const swaggerDescription = cfg.get('server.swagger.description');
+  const swaggerVersion = cfg.get('server.swagger.version');
 
   const swaggerOptions = new DocumentBuilder()
     .setTitle(swaggerTitle)
