@@ -228,11 +228,11 @@ export class AdminsService implements OnApplicationBootstrap {
         'err_auth_usernameOrPasswordNotValid',
       );
     }
-    //check password
+    // check password
     const passwordCheck = await this.utils.PasswordHandler.validate(
       query.password,
-      profile.salt,
-      profile.password,
+      profile.salt!,
+      profile.password!,
     );
     if (!passwordCheck)
       throw new SrvError(
@@ -246,12 +246,12 @@ export class AdminsService implements OnApplicationBootstrap {
       refreshExpiresAt: +new Date(),
     });
     const accessToken = new this.utils.JwtHandler.AccessToken(
-      profile.id,
+      profile.id!,
       'ADMIN',
     );
-    const tokenData = accessToken.generate(newSession.id);
+    const tokenData = accessToken.generate(newSession.id!);
     await newSession.update({
-      refreshExpiresAt: tokenData.payload.refreshExpiresAt,
+      refreshExpiresAt: tokenData!.payload.refreshExpiresAt,
     });
     await newSession.reload();
     const _profile = await this.pg.models.Admin.scope(
@@ -260,14 +260,13 @@ export class AdminsService implements OnApplicationBootstrap {
       raw: true,
     });
 
-    const rbacData: any = await this.getRbacData(profile.id);
+
 
     return {
       data: {
         profile: _profile,
         session: newSession,
-        ...rbacData,
-        isActive: _profile.isActive,
+        isActive: _profile!.isActive,
         tokenData,
       },
     };

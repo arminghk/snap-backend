@@ -72,7 +72,7 @@ export class DriversService {
     const accessToken = new this.utils.JwtHandler.AccessToken(profile.id, "DRIVER");
         const tokenData = accessToken.generate(newSession.id);
         await newSession.update({
-            refreshExpiresAt: tokenData.payload.refreshExpiresAt,
+            refreshExpiresAt: tokenData!.payload.refreshExpiresAt,
         });
         await newSession.reload();
         const _profile = await this.pg.models.Admin.scope('withoutPassword').findByPk(profile.id, {
@@ -99,7 +99,7 @@ async authorize({
   let driver
   let session
 
-  const decodedToken: any = new this.utils.JwtHandler.decodeToken(token);
+  const decodedToken: any = this.utils.JwtHandler.decodeToken(token);
  
   if (decodedToken) {
     const driverId = decodedToken.did;
@@ -119,10 +119,8 @@ async authorize({
       // Access token expired → regenerate + extend session
       else if (+new Date(decodedToken.accessExpiresAt) <= now) {
         if (session) {
-          tokenData = this.tokenService.generateAccessToken({
-            driverId,
-            sessionId: session.id,
-          });
+             const accessToken = new this.utils.JwtHandler.AccessToken(session.assistantId, "ADMIN");
+             tokenData = accessToken.generate(session.id);
 
           session = await this.extendSession(
             session.id,

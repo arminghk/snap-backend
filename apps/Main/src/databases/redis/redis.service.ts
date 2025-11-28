@@ -13,9 +13,9 @@ export class RedisService implements OnModuleInit {
 
   async onModuleInit() {
     const cacheClient = new Redis({
-      host: redisConfig.get('Redis.host'),
-      port: redisConfig.get('Redis.port'),
-      db: redisConfig.get('Redis.cacheDb'),
+      host: redisConfig.host,
+      port: redisConfig.port,
+      db: redisConfig.cacheDb,
     });
     cacheClient.on('error', (e) => {
       this.logger.fatal('cacheClient connecting error');
@@ -28,9 +28,9 @@ export class RedisService implements OnModuleInit {
     this.cacheCli = cacheClient;
 
     const sessionClient = new Redis({
-      host: redisConfig.get('Redis.host'),
-      port: redisConfig.get('Redis.port'),
-      db: redisConfig.get('Redis.sessionDb'),
+      host: redisConfig.host,
+      port: redisConfig.port,
+      db: redisConfig.sessionDb,
     });
 
     sessionClient.on('error', (e) => {

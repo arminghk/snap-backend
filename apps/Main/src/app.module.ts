@@ -8,8 +8,8 @@ import { UtilsModule } from './_utils/utils.module';
 @Module({
   imports: [
     DatabasesModule,
-    UtilsModule,
-    ServiceModule,
+    // UtilsModule,
+    // ServiceModule,
   ],
   controllers: [],
   providers: [],

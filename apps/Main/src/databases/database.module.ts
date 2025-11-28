@@ -5,7 +5,14 @@ import { RedisService } from './redis/redis.service';
 
 @Global()
 @Module({
-    providers:[PostgresService ,RedisService],
-    exports:[PostgresService,RedisService]
+    providers:[
+        PostgresService ,
+        RedisService
+    ],
+    exports:[
+        PostgresService,
+        RedisService
+    ]
+
 })
 export class DatabasesModule { }
