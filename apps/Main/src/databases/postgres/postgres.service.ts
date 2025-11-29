@@ -31,6 +31,11 @@ export class PostgresService implements OnModuleInit {
 
       models.Admin.hasMany(models.AdminSession, { foreignKey: "adminId", as: "sessions" });
       models.AdminSession.belongsTo(models.Admin, { foreignKey: "adminId", as: "profile" });
+      models.Admin.addScope("withoutPassword", {
+            attributes: {
+                exclude: ["password", "salt"]
+            }
+      });
 
        models.Driver.hasOne(models.DriverSession, { foreignKey: "driverId", as: "session" });
        models.DriverSession.belongsTo(models.Driver, { foreignKey: "driverId", as: "driver" });

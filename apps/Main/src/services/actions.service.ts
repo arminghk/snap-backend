@@ -2,11 +2,15 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { DriversService } from 'src/providers/driver.service';
 import { ServiceClientActionInputDto, ServiceResponseData } from './dto';
 import _ from 'lodash'
+import { AdminsService } from 'src/providers/admin.service';
 
 
 @Injectable()
 export class SelfActionService {
-  constructor(private readonly driversService: DriversService) {}
+  constructor(
+    private readonly driversService: DriversService,
+    private readonly adminsService: AdminsService
+  ) {}
 
   async findAndCall(data:ServiceClientActionInputDto): Promise<ServiceResponseData> {
     const providerName = data?.provider || null;
@@ -19,6 +23,9 @@ export class SelfActionService {
       case 'DRIVERS':
         provider = this.driversService;
         break;
+      case 'ADMINS':
+        provider = this.adminsService;
+        break;  
       default:
         provider = null;
     }

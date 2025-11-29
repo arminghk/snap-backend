@@ -15,7 +15,7 @@ export class AdminAuthService {
 
     async authorize(token: string): Promise<AuthorizeOutputDto> {
         const data = await this.mainSrvCli.callAction({
-            provider: 'ADMIN',
+            provider: 'ADMINS',
             action: "authorize",
             query: {
                 token
@@ -26,7 +26,7 @@ export class AdminAuthService {
 
     async signIn(signInData: AdminSignInInputDto): Promise<AdminSignInOutputDto> {
         const data = await this.mainSrvCli.callAction({
-            provider: 'ADMIN',
+            provider: 'ADMINS',
             action: "signIn",
             query: signInData
         });
@@ -35,7 +35,7 @@ export class AdminAuthService {
 
     async signOut(session: AdminSessionModel): Promise<StatusResponseDto> {
         const data = await this.mainSrvCli.callAction({
-            provider: 'ADMIN',
+            provider: 'ADMINS',
             action: "signOut",
             query: {
                 id: session.id

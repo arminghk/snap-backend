@@ -3,7 +3,6 @@ import { DataType, Table, Column, Model } from "sequelize-typescript";
 @Table({
     tableName: "admin",
     timestamps: true,
-    paranoid: false,
     freezeTableName: true
 })
 export class Admin extends Model {
