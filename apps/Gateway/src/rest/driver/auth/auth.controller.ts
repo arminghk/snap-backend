@@ -26,17 +26,6 @@ export class DriverAuthController {
   @ApiOperation({ summary: 'Verify otp sent to driver phone number' })
   async verifyOtp(@Body() body: DriverVerifyOtpInputDto,@Res({ passthrough: true }) res: Response) {
     const verifyOtpData = await this.driverAuthService.verifyOtp(body);
-     const tokenData = verifyOtpData.accessToken;
-    res.cookie(tokenData.name, tokenData.token, { 
-      maxAge: tokenData.ttl, 
-      httpOnly: true, 
-      secure: true,
-      sameSite: "strict",
-      path: "/"
-    });
-
-    delete verifyOtpData.accessToken;
-
     return verifyOtpData;
 
   }
