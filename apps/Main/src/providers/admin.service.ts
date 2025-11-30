@@ -15,14 +15,41 @@ import {
 } from 'src/services/dto';
 
 @Injectable()
-export class AdminsService {
+export class AdminsService implements OnApplicationBootstrap {
   private logger = new Logger('providers/admins');
   constructor(
     private readonly pg: PostgresService,
     private readonly utils: UtilsService,
   ) {}
 
+  async onApplicationBootstrap() {
+    await this.seed();
+  }
 
+  async seed() {
+        const checkRootUser = await this.pg.models.Admin.findOne({
+            where: {
+                isDefault: true
+            }
+        });
+        if (checkRootUser) {
+            this.logger.verbose("Initializing", "Root user already exists");
+            return;
+        }
+        const defaultPassword = "rootpanelpassword";
+        const { salt, hash } = await this.utils.PasswordHandler.generate(defaultPassword);
+        const admin = await this.pg.models.Admin.create({
+            email: "root@snapp.com",
+            name: "Root Admin",
+            isDefault: true,
+            isActive: true,
+            password: hash,
+            salt
+        });
+    
+        this.logger.verbose("Initializing", "Root user has been created");
+        return;
+  }
   async signIn({
     query,
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
@@ -74,8 +101,6 @@ export class AdminsService {
       raw: true,
     });
 
-
-
     return {
       data: {
         profile: _profile,
@@ -85,5 +110,4 @@ export class AdminsService {
       },
     };
   }
-
 }

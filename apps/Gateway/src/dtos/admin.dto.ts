@@ -34,23 +34,16 @@ export class AdminSessionModel {
 }
 
 export class AdminSignInInputDto {
-    @ApiProperty({ type: String, required: true, example: 'root@palgam.com' })
+    @ApiProperty({ type: String, required: true, example: 'root@snapp.com' })
     @IsString()
     @IsEmail()
     email: string;
-    @ApiProperty({ type: String, required: true, example: 'Root@panel123!' })
+    @ApiProperty({ type: String, required: true, example: 'rootpanelpassword' })
     @IsString()
     @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[(#?!@$%^&*-_)]).{7,33}$/, {
         message: 'Password must be between 8 to 32 English characters, numbers, or symbols and it must contains at least one uppercase letter, one number, and one of (#?!@$%^&*-_) symbols'
     })
     password: string;
-    @ApiProperty({ type: String, required: false, example: '123456' })
-    @IsString()
-    @IsOptional()
-    @Matches(/^[0-9]{6}$/, {
-        message: 'Token is a 6 digits string'
-    })
-    token?: string;
 }
 
 export class GetProfileOutputDto {

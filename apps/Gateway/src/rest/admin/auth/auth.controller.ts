@@ -35,16 +35,7 @@ export class AdminAuthController {
     }
     
 
-    @Get()
-    @ApiOperation({ summary: "Get admin\"s profile and permissions" })
-    @ApiCookieAuth()
-    @UseGuards(AdminAuthGuard)
-    async getProfile(
-        @Req() req: RequestWithUserData
-    ): Promise<GetAdminProfileOutputDto> {
-        const accountData = await this.authService.getProfile(req);
-        return accountData;
-    }
+
 
     
 }
