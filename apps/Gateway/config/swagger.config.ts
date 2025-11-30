@@ -7,32 +7,47 @@ import { PassengerModule } from 'src/rest/passenger/passenger.module';
 interface SwaggerModuleItem {
   path: string;
   module?: any;
+  bearer?: boolean;
 }
 
 export function setupSwagger(app: INestApplication, cfg) {
-
   const apiVersion = cfg.get('server.apiVersion');
   const swaggerTitle = cfg.get('server.swagger.title');
   const swaggerDescription = cfg.get('server.swagger.description');
   const swaggerVersion = cfg.get('server.swagger.version');
 
-  const swaggerOptions = new DocumentBuilder()
-    .setTitle(swaggerTitle)
+  const mainOptions = new DocumentBuilder()
+    .setTitle(`${swaggerTitle} - Admin`)
     .setDescription(swaggerDescription)
     .setVersion(swaggerVersion)
     .build();
 
-  const mainDocument = SwaggerModule.createDocument(app, swaggerOptions);
+  const mainDocument = SwaggerModule.createDocument(app, mainOptions, {
+    include: [AdminModule],
+  });
   SwaggerModule.setup(`${apiVersion}/docs`, app, mainDocument);
 
   const modules: SwaggerModuleItem[] = [
-    { path: 'admin', module: AdminModule },
-    { path: 'driver', module: DriverModule },
-    { path: 'passenger', module: PassengerModule },
+    { path: 'admin', module: AdminModule, bearer: false },
+    { path: 'driver', module: DriverModule, bearer: true },
+    { path: 'passenger', module: PassengerModule, bearer: true },
   ];
 
-  modules.forEach(({ path, module }) => {
-    const doc = SwaggerModule.createDocument(app, swaggerOptions, { include: [module] });
+  modules.forEach(({ path, module, bearer }) => {
+    let optionsBuilder = new DocumentBuilder()
+      .setTitle(`${swaggerTitle} - ${path}`)
+      .setDescription(swaggerDescription)
+      .setVersion(swaggerVersion);
+
+    if (bearer) {
+      optionsBuilder = optionsBuilder.addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'access-token',
+      );
+    }
+
+    const options = optionsBuilder.build();
+    const doc = SwaggerModule.createDocument(app, options, { include: [module] });
     SwaggerModule.setup(`${apiVersion}/docs/${path}`, app, doc);
   });
 }

@@ -122,7 +122,6 @@ export class AdminsService implements OnApplicationBootstrap {
     let session;
 
     const decodedToken: any = this.utils.JwtHandler.decodeToken(token);
-
     if (decodedToken) {
       const adminId = decodedToken.aid;
       admin = await this.getAdminById(adminId);

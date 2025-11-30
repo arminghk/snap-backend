@@ -48,10 +48,7 @@ export class AdminAuthService {
         return {
             userType: req.acc_type,
             profile: req.acc_profile,
-            session: req.acc_session,
-            roleNames: req.acc_roleNames,
-            actionsIncluded: req.acc_actionsIncluded,
-            actionsExcluded: req.acc_actionsExcluded
+            session: req.acc_session
         }
     }
 

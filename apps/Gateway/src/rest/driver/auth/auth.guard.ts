@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { DriverAuthService } from './auth.service';
 
@@ -9,7 +14,7 @@ export class DriverAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: any = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
-    const token = request.cookies['auth_driver'];
+    const token = this.extractTokenFromHeader(request);
 
     if (!token) throw new UnauthorizedException('err_auth_unauthorized');
 
@@ -17,7 +22,8 @@ export class DriverAuthGuard implements CanActivate {
 
     const data = authorized;
 
-    if (!data.isAuthorized) throw new UnauthorizedException('err_auth_unauthorized');
+    if (!data.isAuthorized)
+      throw new UnauthorizedException('err_auth_unauthorized');
 
     // Set request data
     request.driver = data.profile;
@@ -38,5 +44,10 @@ export class DriverAuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

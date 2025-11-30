@@ -16,6 +16,7 @@ export class AuthorizeOutputDto {
 }
 
 export interface RequestWithUserData extends Request {
+    cookies: Record<string, string>;
     acc_profile?: DriverModel | AdminModel;
     acc_session?: DriverSessionModel | AdminSessionModel;
     acc_isActive?: boolean;

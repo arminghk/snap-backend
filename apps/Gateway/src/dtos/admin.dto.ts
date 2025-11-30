@@ -49,21 +49,17 @@ export class AdminSignInInputDto {
 export class GetProfileOutputDto {
     @ApiProperty({ required: false })
     userType: "ADMIN";
-    @ApiProperty({ type: [String], required: false })
-    roleNames: string[];
-    @ApiProperty({ type: [String], required: false })
-    actionsIncluded: string[];
-    @ApiProperty({ type: [String], required: false })
-    actionsExcluded: string[];
 }
 
 
 export class GetAdminProfileOutputDto extends GetProfileOutputDto {
     @ApiProperty({ type: AdminModel, required: false })
-    profile: AdminModel;
+    profile?: AdminModel;
+
     @ApiProperty({ type: AdminSessionModel, required: false })
-    session: AdminSessionModel;
+    session?: AdminSessionModel;
 }
+
 
 export class AdminSignInOutputDto extends GetAdminProfileOutputDto {
     tokenData: any
