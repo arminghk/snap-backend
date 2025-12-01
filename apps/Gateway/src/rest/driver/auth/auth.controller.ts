@@ -6,16 +6,20 @@ import { HttpExceptionFilter } from 'src/response/httpException.filter';
 import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { DriverAuthGuard } from './auth.guard';
 import type { Response } from 'express';
+import { Public } from 'src/common/decorators/public.decorator';
 
 
 @ApiTags("Driver:Auth")
 @Controller('Auth')
+@ApiBearerAuth('Authorization')
+@UseGuards(DriverAuthGuard)
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponseInterceptor)
 export class DriverAuthController {
   constructor(private readonly driverAuthService: DriverAuthService) {}
 
   @Post('request-otp')
+  @Public()
   @ApiOperation({ summary: 'Request otp in app by phone number' })
   async requestOtp(@Body() body: DriverRequestOtpInputDto) {
     const requestOtpData = await this.driverAuthService.requestOtp(body);
@@ -23,14 +27,13 @@ export class DriverAuthController {
   }
 
   @Post('verify-otp')
+  @Public()
   @ApiOperation({ summary: 'Verify otp sent to driver phone number' })
   async verifyOtp(@Body() body: DriverVerifyOtpInputDto,@Res({ passthrough: true }) res: Response) {
     const verifyOtpData = await this.driverAuthService.verifyOtp(body);
     return verifyOtpData;
 
   }
-  @ApiBearerAuth('Authorization')
-  @UseGuards(DriverAuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Get driver profile' })
   async getProfile(@Request() req) {

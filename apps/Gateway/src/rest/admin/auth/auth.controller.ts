@@ -28,8 +28,11 @@ import {
 import type { Response } from 'express';
 import { AdminAuthGuard } from './auth.guard';
 import type { RequestWithUserData } from 'src/dtos/public.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Admin: Auth')
+@UseGuards(AdminAuthGuard)
+@ApiCookieAuth()
 @Controller('auth')
 @ApiBadRequestResponse({ description: 'Bad Request | Bad Inputs' })
 @ApiUnauthorizedResponse({ description: 'Session is expired | Unauthorized' })
@@ -48,6 +51,7 @@ export class AdminAuthController {
   @ApiOperation({
     summary: 'Signin to panel as admin by username and password',
   })
+  @Public()
   async signIn(
     @Body() body: AdminSignInInputDto,
     @Res({ passthrough: true }) res: Response,
@@ -62,8 +66,6 @@ export class AdminAuthController {
     return signInData;
   }
   @Get('profile')
-  @UseGuards(AdminAuthGuard)
-  @ApiCookieAuth()
   @ApiOperation({ summary: 'Get admin profile (guarded)' })
   async getProfile(
     @Req() req: RequestWithUserData,
