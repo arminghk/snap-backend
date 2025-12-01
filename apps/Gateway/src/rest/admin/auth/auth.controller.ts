@@ -76,4 +76,18 @@ export class AdminAuthController {
       session: req.acc_session,
     };
   }
+
+  @Post('signout')
+  @ApiOperation({ summary: 'Logout admin' })
+  async signOut(
+    @Req() req: RequestWithUserData,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.signOut(req.acc_session!);
+
+
+    res.clearCookie('auth_admin');
+
+    return { success: true };
+  }
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Admin } from '@nestjs/microservices/external/kafka.interface';
 import { UtilsService } from 'src/_utils/utils.service';
+import { AdminSession } from 'src/databases/postgres/models';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
 import {
@@ -28,28 +29,29 @@ export class AdminsService implements OnApplicationBootstrap {
   }
 
   async seed() {
-        const checkRootUser = await this.pg.models.Admin.findOne({
-            where: {
-                isDefault: true
-            }
-        });
-        if (checkRootUser) {
-            this.logger.verbose("Initializing", "Root user already exists");
-            return;
-        }
-        const defaultPassword = "rootpanelpassword";
-        const { salt, hash } = await this.utils.PasswordHandler.generate(defaultPassword);
-        const admin = await this.pg.models.Admin.create({
-            email: "root@snapp.com",
-            name: "Root Admin",
-            isDefault: true,
-            isActive: true,
-            password: hash,
-            salt
-        });
-    
-        this.logger.verbose("Initializing", "Root user has been created");
-        return;
+    const checkRootUser = await this.pg.models.Admin.findOne({
+      where: {
+        isDefault: true,
+      },
+    });
+    if (checkRootUser) {
+      this.logger.verbose('Initializing', 'Root user already exists');
+      return;
+    }
+    const defaultPassword = 'rootpanelpassword';
+    const { salt, hash } =
+      await this.utils.PasswordHandler.generate(defaultPassword);
+    const admin = await this.pg.models.Admin.create({
+      email: 'root@snapp.com',
+      name: 'Root Admin',
+      isDefault: true,
+      isActive: true,
+      password: hash,
+      salt,
+    });
+
+    this.logger.verbose('Initializing', 'Root user has been created');
+    return;
   }
   async signIn({
     query,
@@ -111,7 +113,7 @@ export class AdminsService implements OnApplicationBootstrap {
       },
     };
   }
-    async authorize({
+  async authorize({
     query: { token },
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     let isAuthorized = false;
@@ -131,7 +133,7 @@ export class AdminsService implements OnApplicationBootstrap {
 
         // Refresh token expired → destroy session
         if (+new Date(decodedToken.refreshExpiresAt) <= now) {
-          await this.pg.models.DriverSession.destroy({
+          await this.pg.models.AdminSession.destroy({
             where: { id: decodedToken.sid },
           });
           await this.redis.cacheCli.del(`adminSession_${decodedToken.sid}`);
@@ -141,7 +143,7 @@ export class AdminsService implements OnApplicationBootstrap {
         else if (+new Date(decodedToken.accessExpiresAt) <= now) {
           if (session) {
             const accessToken = new this.utils.JwtHandler.AccessToken(
-              session.assistantId,
+              session.adminId,
               'ADMIN',
             );
             tokenData = accessToken.generate(session.id);
@@ -175,6 +177,15 @@ export class AdminsService implements OnApplicationBootstrap {
       },
     };
   }
+  async signOut(session: AdminSession){
+    await this.pg.models.AdminSession.destroy({
+        where: { id: session.id }
+    });
+
+    await this.redis.cacheCli.del(`adminSession_${session.id}`);
+
+    return { success: true };
+}
 
   private async getAdminById(id: string) {
     let admin = null;

@@ -30,9 +30,7 @@ export class AdminAuthGuard implements CanActivate {
 
     if (isPublic) {
       const token =
-        request.cookies[
-          this.utils.JwtHandler.AccessToken.revoke('ADMIN').name
-        ];
+        request.cookies[this.utils.JwtHandler.AccessToken.revoke('ADMIN').name];
 
       if (token) {
         throw new UnauthorizedException('already_logged_in');
@@ -53,6 +51,17 @@ export class AdminAuthGuard implements CanActivate {
     if (authorized.clearCookie) response.clearCookie(authorized.clearCookie);
     if (!authorized.isAuthorized)
       throw new UnauthorizedException('err_auth_unauthorized');
+
+    if (authorized.tokenData) {
+      const td = authorized.tokenData;
+      response.cookie('auth_admin', td.token, {
+        maxAge: td.ttl, 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
+    }
 
     return authorized.isAuthorized;
   }
