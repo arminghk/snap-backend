@@ -19,6 +19,7 @@ export class DriverAuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('err_auth_unauthorized');
 
     const authorized = await this.authService.authorize(token);
+    console.log('authorized---',authorized);
 
     const data = authorized;
 
@@ -26,7 +27,7 @@ export class DriverAuthGuard implements CanActivate {
       throw new UnauthorizedException('err_auth_unauthorized');
 
     // Set request data
-    request.driver = data.profile;
+    request.driver = data.driver;
     request.session = data.session;
     request.acc_type = 'DRIVER';
 

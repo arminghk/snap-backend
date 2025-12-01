@@ -29,7 +29,7 @@ export class DriverAuthController {
     return verifyOtpData;
 
   }
-  @ApiBearerAuth()
+  @ApiBearerAuth('Authorization')
   @UseGuards(DriverAuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Get driver profile' })

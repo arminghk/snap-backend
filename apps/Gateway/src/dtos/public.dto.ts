@@ -4,8 +4,8 @@ import { DriverModel, DriverSessionModel } from "./driver.dto";
 
 export class AuthorizeOutputDto {
   isAuthorized: boolean;
-  profile?: DriverModel;
-  session?: DriverSessionModel;
+  profile?: DriverModel | AdminModel;
+  session?: DriverSessionModel | AdminSessionModel;
   tokenData?: {
     token: string;
     ttl: number;

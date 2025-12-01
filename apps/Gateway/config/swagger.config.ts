@@ -42,7 +42,7 @@ export function setupSwagger(app: INestApplication, cfg) {
     if (bearer) {
       optionsBuilder = optionsBuilder.addBearerAuth(
         { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-        'access-token',
+        'Authorization',
       );
     }
 

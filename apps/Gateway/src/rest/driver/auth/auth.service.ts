@@ -28,7 +28,7 @@ export class DriverAuthService {
     return handleSrvCliResponse(data);
   }
 
-  async authorize(token: string): Promise<AuthorizeOutputDto> {
+  async authorize(token: string){
         const data = await this.mainSrvCli.callAction({
             provider: 'DRIVERS',
             action: "authorize",
