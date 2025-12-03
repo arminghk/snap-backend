@@ -83,10 +83,11 @@ export class AdminAuthController {
     @Req() req: RequestWithUserData,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.signOut(req.acc_session!);
+    const session = req.acc_session;
+    if (!session) throw new Error('No session found for logout');
 
-
-    res.clearCookie('auth_admin');
+    await this.authService.signOut(session);
+    res.clearCookie('auth_admin', { path: '/' });
 
     return { success: true };
   }

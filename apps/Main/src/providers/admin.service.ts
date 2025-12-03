@@ -4,7 +4,6 @@ import {
   Logger,
   OnApplicationBootstrap,
 } from '@nestjs/common';
-import { Admin } from '@nestjs/microservices/external/kafka.interface';
 import { UtilsService } from 'src/_utils/utils.service';
 import { AdminSession } from 'src/databases/postgres/models';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
@@ -117,13 +116,14 @@ export class AdminsService implements OnApplicationBootstrap {
     query: { token },
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     let isAuthorized = false;
-    let clearCookie: string | null = 'auth_admin';
+    let clearCookie: string | null = 'snapp_auth_admin';
 
     let tokenData;
     let admin;
     let session;
 
     const decodedToken: any = this.utils.JwtHandler.decodeToken(token);
+    console.log('decodedToken---->',decodedToken);
     if (decodedToken) {
       const adminId = decodedToken.aid;
       admin = await this.getAdminById(adminId);
@@ -177,15 +177,20 @@ export class AdminsService implements OnApplicationBootstrap {
       },
     };
   }
-  async signOut(session: AdminSession){
+  async signOut({ query }: ServiceClientContextDto) {
+    const sessionId = query.id;
+    if (!sessionId) {
+      throw new SrvError(HttpStatus.BAD_REQUEST, 'Session id is required');
+    }
+
     await this.pg.models.AdminSession.destroy({
-        where: { id: session.id }
+      where: { id: sessionId },
     });
 
-    await this.redis.cacheCli.del(`adminSession_${session.id}`);
+    await this.redis.cacheCli.del(`adminSession_${sessionId}`);
 
     return { success: true };
-}
+  }
 
   private async getAdminById(id: string) {
     let admin = null;

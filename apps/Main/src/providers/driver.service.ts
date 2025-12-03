@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { UtilsService } from 'src/_utils/utils.service';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
@@ -7,10 +7,13 @@ import {
   ServiceResponseData,
   SrvError,
 } from 'src/services/dto';
+import { JwtTypeEnum } from 'src/_utils/handlers/jwt.handler';
 
 @Injectable()
 export class DriversService {
   private static readonly role = 'driver';
+  private readonly OTP_TTL_SECONDS = 120;
+
   constructor(
     private readonly pg: PostgresService,
     private readonly redis: RedisService,
@@ -21,22 +24,29 @@ export class DriversService {
     query,
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     let { phone } = query;
-    const key = `otp:${DriversService.role}:${phone}`;
-    const existing = await this.redis.cacheCli.get(key);
-    if (existing)
+
+    if (!phone || typeof phone !== 'string') {
+      throw new SrvError(HttpStatus.BAD_REQUEST, 'Invalid phone');
+    }
+
+    const otpKey = `otp:${DriversService.role}:${phone}`;
+
+    const existing = await this.redis.cacheCli.get(otpKey);
+    if (existing) {
       throw new SrvError(HttpStatus.BAD_REQUEST, 'OTP already sent');
+    }
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const ttl = 2 * 60;
-    await this.redis.cacheCli.set(key, otp, 'EX', ttl);
+
+    await this.redis.cacheCli.set(otpKey, otp, 'EX', this.OTP_TTL_SECONDS);
 
     return {
       message: 'OTP send successfully!',
       data: {
         success: true,
-        otp,
         phone,
-        expiresIn: ttl,
+        expiresIn: this.OTP_TTL_SECONDS,
+        otp
       },
     };
   }
@@ -63,6 +73,10 @@ export class DriversService {
       profile = await this.pg.models.Driver.create({ phone });
     }
 
+    await this.pg.models.DriverSession.destroy({
+      where: { driverId: profile.id },
+    });
+
     const newSession = await this.pg.models.DriverSession.create({
       driverId: profile.id,
       refreshExpiresAt: +new Date(),
@@ -73,15 +87,24 @@ export class DriversService {
       'DRIVER',
     );
     const tokenData = accessToken.generate(newSession.id);
+
     await newSession.update({
       refreshExpiresAt: tokenData!.payload.refreshExpiresAt,
     });
     await newSession.reload();
-    const _profile = await this.pg.models.Admin.scope(
-      'withoutPassword',
-    ).findByPk(profile.id, {
-      raw: true,
-    });
+
+    await this.redis.cacheCli.set(
+      `driver_${profile.id}`,
+      JSON.stringify(JSON.parse(JSON.stringify(profile))),
+      'EX',
+      900,
+    );
+    await this.redis.cacheCli.set(
+      `driverSession_${newSession.id}`,
+      JSON.stringify(newSession),
+      'EX',
+      900,
+    );
 
     return {
       message: 'OTP verified successfully!',
@@ -93,17 +116,17 @@ export class DriversService {
     };
   }
 
-      async authorize({
+  async authorize({
     query: { token },
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     let isAuthorized = false;
-    let clearCookie: string | null = 'auth_driver';
-
     let tokenData;
     let driver;
     let session;
 
-    const decodedToken: any = this.utils.JwtHandler.decodeToken(token);
+    const decodedToken: any = this.utils.JwtHandler.decodeToken(
+      token,
+    );
     if (decodedToken) {
       const driverId = decodedToken.aid;
       driver = await this.getDriverById(driverId);
@@ -111,19 +134,17 @@ export class DriversService {
         session = await this.getSessionById(decodedToken.sid);
         const now = Date.now();
 
-        // Refresh token expired → destroy session
         if (+new Date(decodedToken.refreshExpiresAt) <= now) {
-          await this.pg.models.DriverSession.destroy({
-            where: { id: decodedToken.sid },
-          });
-          await this.redis.cacheCli.del(`driverSession_${decodedToken.sid}`);
-        }
-
-        // Access token expired → regenerate + extend session
-        else if (+new Date(decodedToken.accessExpiresAt) <= now) {
+          if (session) {
+            await this.pg.models.DriverSession.destroy({
+              where: { id: decodedToken.sid },
+            });
+            await this.redis.cacheCli.del(`driverSession_${decodedToken.sid}`);
+          }
+        } else if (+new Date(decodedToken.accessExpiresAt) <= now) {
           if (session) {
             const accessToken = new this.utils.JwtHandler.AccessToken(
-              session.assistantId,
+              driver.id,
               'DRIVER',
             );
             tokenData = accessToken.generate(session.id);
@@ -132,19 +153,13 @@ export class DriversService {
               session.id,
               tokenData.payload.refreshExpiresAt,
             );
-
             isAuthorized = true;
           }
-        }
-
-        // Access token still valid
-        else {
+        } else {
           if (session) isAuthorized = true;
         }
       }
     }
-
-    if (isAuthorized) clearCookie = null;
 
     return {
       data: {
@@ -152,7 +167,6 @@ export class DriversService {
         tokenData,
         driver,
         session,
-        clearCookie,
         isActive: driver?.isActive ?? null,
       },
     };
@@ -164,7 +178,6 @@ export class DriversService {
     if (!_driver) {
       _driver = await this.pg.models.Driver.findByPk(id);
       if (!_driver) return null;
-
       _driver = JSON.parse(JSON.stringify(_driver));
       await this.redis.cacheCli.set(
         `driver_${_driver.id}`,
@@ -183,7 +196,6 @@ export class DriversService {
     if (!_session) {
       _session = await this.pg.models.DriverSession.findByPk(id);
       if (!_session) return null;
-
       await this.redis.cacheCli.set(
         `driverSession_${_session.id}`,
         JSON.stringify(_session),

@@ -1,16 +1,23 @@
-import { Body, Controller, Get, Post, UseFilters, UseGuards, UseInterceptors, Request, Res} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+  Request,
+} from '@nestjs/common';
 import { DriverAuthService } from './auth.service';
-import { ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver.dto';
 import { HttpExceptionFilter } from 'src/response/httpException.filter';
 import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { DriverAuthGuard } from './auth.guard';
-import type { Response } from 'express';
 import { Public } from 'src/common/decorators/public.decorator';
 
-
-@ApiTags("Driver:Auth")
-@Controller('Auth')
+@ApiTags('Driver:Auth')
+@Controller('driver/auth')
 @ApiBearerAuth('Authorization')
 @UseGuards(DriverAuthGuard)
 @UseFilters(HttpExceptionFilter)
@@ -22,21 +29,19 @@ export class DriverAuthController {
   @Public()
   @ApiOperation({ summary: 'Request otp in app by phone number' })
   async requestOtp(@Body() body: DriverRequestOtpInputDto) {
-    const requestOtpData = await this.driverAuthService.requestOtp(body);
-    return requestOtpData
+    return await this.driverAuthService.requestOtp(body);
   }
 
   @Post('verify-otp')
   @Public()
   @ApiOperation({ summary: 'Verify otp sent to driver phone number' })
-  async verifyOtp(@Body() body: DriverVerifyOtpInputDto,@Res({ passthrough: true }) res: Response) {
-    const verifyOtpData = await this.driverAuthService.verifyOtp(body);
-    return verifyOtpData;
-
+  async verifyOtp(@Body() body: DriverVerifyOtpInputDto) {
+    return await this.driverAuthService.verifyOtp(body);
   }
-  @Get('profile')
+
+  @Get('/profile')
   @ApiOperation({ summary: 'Get driver profile' })
   async getProfile(@Request() req) {
-    return req.driver
+    return req.driver;
   }
 }

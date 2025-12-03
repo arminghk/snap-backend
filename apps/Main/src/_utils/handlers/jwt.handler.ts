@@ -4,7 +4,7 @@ const jwtOptions: any = config.get("jwt");
 const projectName: any = config.get("server.name");
 
 const getTokenName = (tokenName: string, userType: "ADMIN" | "DRIVER") => {
-    return `${projectName.toLowerCase()}_'dev'_${tokenName.toLowerCase()}_${userType.toLowerCase()}`
+    return `${projectName.toLowerCase()}_${tokenName.toLowerCase()}_${userType.toLowerCase()}`
 }
 export const enum JwtTypeEnum {
     ACCESS = "access",

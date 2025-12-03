@@ -3,8 +3,9 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Request } from 'express';
 import { DriverAuthService } from './auth.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
@@ -23,13 +24,9 @@ export class DriverAuthGuard implements CanActivate {
     ]);
 
     const request: any = context.switchToHttp().getRequest();
-    const response: Response = context.switchToHttp().getResponse();
     const token = this.extractTokenFromHeader(request);
 
     if (isPublic) {
-      if (token) {
-        throw new UnauthorizedException('already_logged_in');
-      }
       return true;
     }
 
@@ -39,24 +36,17 @@ export class DriverAuthGuard implements CanActivate {
 
     const authorized = await this.authService.authorize(token);
 
-    if (!authorized.isAuthorized) {
+    if (!authorized?.isAuthorized) {
       throw new UnauthorizedException('err_auth_unauthorized');
+    }
+
+    if (authorized.driver && authorized.isActive === false) {
+      throw new ForbiddenException('driver_inactive');
     }
 
     request.driver = authorized.driver;
     request.session = authorized.session;
     request.acc_type = 'DRIVER';
-
-    if (authorized.tokenData) {
-      response.cookie('auth_driver', authorized.tokenData.token, {
-        httpOnly: true,
-        maxAge: authorized.tokenData.ttl,
-      });
-    }
-
-    if (authorized.clearCookie) {
-      response.clearCookie(authorized.clearCookie);
-    }
 
     return true;
   }

@@ -10,6 +10,7 @@ import { RequestWithUserData } from 'src/dtos/public.dto';
 import { UtilsService } from 'src/_utils/utils.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
+import { AccessToken } from 'src/_utils/handlers/jwt.handler';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
@@ -28,34 +29,38 @@ export class AdminAuthGuard implements CanActivate {
     const request: RequestWithUserData = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
 
+    const tokenName = 'snapp_auth_admin';
+    const token = request.cookies[tokenName];
+
     if (isPublic) {
-      const token =
-        request.cookies[this.utils.JwtHandler.AccessToken.revoke('ADMIN').name];
-
-      if (token) {
-        throw new UnauthorizedException('already_logged_in');
-      }
-
+      if (token) throw new UnauthorizedException('already_logged_in');
       return true;
     }
 
-    const authorized = await this.authService.authorize(
-      request.cookies[this.utils.JwtHandler.AccessToken.revoke('ADMIN').name],
-    );
+    if (!token) throw new UnauthorizedException('no_token_found');
+
+    let authorized;
+    try {
+      authorized = await this.authService.authorize(token);
+    } catch (err) {
+      response.clearCookie('snapp_auth_admin', { path: '/' });
+      throw new UnauthorizedException('invalid_token');
+    }
 
     request.acc_profile = authorized.profile;
     request.acc_session = authorized.session;
     request.acc_type = 'ADMIN';
     request.acc_isActive = authorized.isActive;
 
-    if (authorized.clearCookie) response.clearCookie(authorized.clearCookie);
-    if (!authorized.isAuthorized)
+    if (!authorized.isAuthorized) {
+      response.clearCookie('snapp_auth_admin', { path: '/' });
       throw new UnauthorizedException('err_auth_unauthorized');
+    }
 
     if (authorized.tokenData) {
       const td = authorized.tokenData;
-      response.cookie('auth_admin', td.token, {
-        maxAge: td.ttl, 
+      response.cookie('snapp_auth_admin', td.token, {
+        maxAge: td.ttl,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
