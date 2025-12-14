@@ -39,7 +39,10 @@ export class PostgresService implements OnModuleInit {
 
        models.Driver.hasOne(models.DriverSession, { foreignKey: "driverId", as: "session" });
        models.DriverSession.belongsTo(models.Driver, { foreignKey: "driverId", as: "driver" });
-         
+
+      models.Passenger.hasOne(models.PassengerSession, {foreignKey: 'passengerId',as: 'session',});
+      models.PassengerSession.belongsTo(models.Passenger, {foreignKey: 'passengerId',as: 'passenger'});
+
        try {
             await sequelizeInstance.sync({alter:true});
         } catch (e) {

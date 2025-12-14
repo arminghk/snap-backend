@@ -3,13 +3,15 @@ import { DriversService } from 'src/providers/driver.service';
 import { ServiceClientActionInputDto, ServiceResponseData } from './dto';
 import _ from 'lodash'
 import { AdminsService } from 'src/providers/admin.service';
+import { PassengersService } from 'src/providers/passenger.service';
 
 
 @Injectable()
 export class SelfActionService {
   constructor(
     private readonly driversService: DriversService,
-    private readonly adminsService: AdminsService
+    private readonly adminsService: AdminsService,
+    private readonly passengerService: PassengersService
   ) {}
 
   async findAndCall(data:ServiceClientActionInputDto): Promise<ServiceResponseData> {
@@ -26,6 +28,9 @@ export class SelfActionService {
       case 'ADMINS':
         provider = this.adminsService;
         break;  
+      case 'PASSENGERS':
+        provider = this.passengerService;
+        break;    
       default:
         provider = null;
     }

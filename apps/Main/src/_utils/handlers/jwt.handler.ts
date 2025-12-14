@@ -3,7 +3,7 @@ import config from "config";
 const jwtOptions: any = config.get("jwt");
 const projectName: any = config.get("server.name");
 
-const getTokenName = (tokenName: string, userType: "ADMIN" | "DRIVER") => {
+const getTokenName = (tokenName: string, userType: "ADMIN" | "DRIVER" | "PASSENGER") => {
     return `${projectName.toLowerCase()}_${tokenName.toLowerCase()}_${userType.toLowerCase()}`
 }
 export const enum JwtTypeEnum {
@@ -12,14 +12,14 @@ export const enum JwtTypeEnum {
 }
 
 export type AccessPayloadType = {
-    userType: "ADMIN" | "DRIVER",
+    userType: "ADMIN" | "DRIVER" | "PASSENGER",
     accountId: string,
     sessionId: string,
     accessExpiresAt: number,
     refreshExpiresAt: number
 }
 type AccessWrappedPayloadType = {
-    ut: "ADMIN" | "DRIVER",
+    ut: "ADMIN" | "DRIVER" | "PASSENGER",
     aid: string,
     sid: string,
     aea: number,
@@ -78,7 +78,7 @@ export function verifyToken(token: string, type: JwtTypeEnum) {
 }
 export class AccessToken {
     public accountId: string;
-    public userType: "ADMIN" | "DRIVER";
+    public userType: "ADMIN" | "DRIVER" | "PASSENGER";
     private date: Date;
     private accessOptions: {
         expiresInSeconds: number,
@@ -91,7 +91,7 @@ export class AccessToken {
     private accessExpiresAt: number;
     private refreshExpiresAt: number;
     private ttl: number;
-    constructor(accountId: string, userType: "ADMIN" | "DRIVER") {
+    constructor(accountId: string, userType: "ADMIN" | "DRIVER" | "PASSENGER") {
         this.userType = userType;
         this.accountId = accountId;
         this.date = new Date();
@@ -153,7 +153,7 @@ export class AccessToken {
         }
     }
 
-    static revoke(userType: "ADMIN" | "DRIVER") {
+    static revoke(userType: "ADMIN" | "DRIVER" | "PASSENGER") {
         return {
             name: getTokenName(`auth`, userType),
             ttl: 0
