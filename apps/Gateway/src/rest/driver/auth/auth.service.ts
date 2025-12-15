@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver.dto';
+import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver/driver.dto';
 import { handleSrvCliResponse } from 'src/response/httpException.filter';
 import { MainServiceClient } from 'src/services/main.service';
 

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { DriverAuthService } from './auth.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver.dto';
+import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver/driver.dto';
 import { HttpExceptionFilter } from 'src/response/httpException.filter';
 import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { DriverAuthGuard } from './auth.guard';

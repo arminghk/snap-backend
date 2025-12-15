@@ -1,5 +1,5 @@
-import { AdminModel, AdminSessionModel } from "./admin.dto";
-import { DriverModel, DriverSessionModel } from "./driver.dto";
+import { AdminModel, AdminSessionModel } from "./admin/admin.dto";
+import { DriverModel, DriverSessionModel } from "./driver/driver.dto";
 
 
 export class AuthorizeOutputDto {

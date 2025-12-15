@@ -13,7 +13,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   PassengerRequestOtpInputDto,
   PassengerVerifyOtpInputDto,
-} from 'src/dtos/passenger.dto';
+} from 'src/dtos/passenger/passenger.dto';
 import { HttpExceptionFilter } from 'src/response/httpException.filter';
 import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { PassengerAuthGuard } from './auth.guard';

@@ -24,7 +24,7 @@ import { AdminAuthService } from './auth.service';
 import {
   AdminSignInInputDto,
   GetAdminProfileOutputDto,
-} from 'src/dtos/admin.dto';
+} from 'src/dtos/admin/admin.dto';
 import type { Response } from 'express';
 import { AdminAuthGuard } from './auth.guard';
 import type { RequestWithUserData } from 'src/dtos/public.dto';

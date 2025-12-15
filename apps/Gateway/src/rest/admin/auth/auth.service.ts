@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AdminSessionModel, AdminSignInInputDto, AdminSignInOutputDto, GetAdminProfileOutputDto } from 'src/dtos/admin.dto';
+import { AdminSessionModel, AdminSignInInputDto, AdminSignInOutputDto, GetAdminProfileOutputDto } from 'src/dtos/admin/admin.dto';
 import { AuthorizeOutputDto, StatusResponseDto } from 'src/dtos/public.dto';
 import { handleSrvCliResponse } from 'src/response/httpException.filter';
 import { MainServiceClient } from 'src/services/main.service';

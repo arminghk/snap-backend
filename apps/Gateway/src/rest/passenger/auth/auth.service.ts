@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   PassengerRequestOtpInputDto,
   PassengerVerifyOtpInputDto,
-} from 'src/dtos/passenger.dto';
+} from 'src/dtos/passenger/passenger.dto';
 import { handleSrvCliResponse } from 'src/response/httpException.filter';
 import { MainServiceClient } from 'src/services/main.service';
 

@@ -4,6 +4,7 @@ import { SelfActionService } from './actions.service';
 import { DriversService } from 'src/providers/driver.service';
 import { AdminsService } from 'src/providers/admin.service';
 import { PassengersService } from 'src/providers/passenger.service';
+import { TripService } from 'src/providers/trip.service';
 
 
 @Module({
@@ -13,6 +14,7 @@ import { PassengersService } from 'src/providers/passenger.service';
     DriversService,
     AdminsService,
     PassengersService,
+    TripService,
 
 
     SelfActionService
