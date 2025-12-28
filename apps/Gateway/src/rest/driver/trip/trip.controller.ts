@@ -29,5 +29,6 @@ export class DriverTripController {
       tripId,
       driverId: req.driver.id,
     });
+    
   }
 }

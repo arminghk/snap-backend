@@ -14,21 +14,25 @@ import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { PassengerTripService } from './trip.service';
 import { CreateTripInputDto } from 'src/dtos/passenger/trip.dto';
 
+
 @ApiTags('Passenger:Trip')
 @ApiBearerAuth('Authorization')
-@Controller('passenger/trips')
+@Controller('/trips')
 @UseGuards(PassengerAuthGuard)
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponseInterceptor)
 export class PassengerTripController {
-  constructor(private readonly tripService: PassengerTripService) {}
+  constructor(
+    private readonly tripService: PassengerTripService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new trip' })
   async createTrip(@Body() body: CreateTripInputDto, @Request() req) {
-    return this.tripService.createTrip({
+      const res =  this.tripService.createTrip({
       passengerId: req.passenger.id, 
       ...body,
     });
+    return res
   }
 }

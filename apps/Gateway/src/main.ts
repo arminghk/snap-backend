@@ -18,6 +18,7 @@ async function bootstrap() {
 
   setupSwagger(app, config);
 
+
   await app.listen(serviceOptions.port);
   console.log(`🚀 Server running on port ${serviceOptions.port}`);
 }

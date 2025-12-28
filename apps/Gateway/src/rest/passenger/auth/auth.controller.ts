@@ -20,7 +20,7 @@ import { PassengerAuthGuard } from './auth.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Passenger:Auth')
-@Controller('passenger/auth')
+@Controller('/auth')
 @ApiBearerAuth('Authorization')
 @UseGuards(PassengerAuthGuard)
 @UseFilters(HttpExceptionFilter)
