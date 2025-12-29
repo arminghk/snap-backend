@@ -10,19 +10,66 @@ export class SocketAuthGuard implements CanActivate {
     const client: Socket = context.switchToWs().getClient();
     const token = client.handshake.auth?.token;
 
-    if (!token) return false;
+    if (!token) {
+      client.disconnect(true);
+      return false;
+    }
+
+ 
+    let payload: any;
+    try {
+      payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    } catch (e) {
+      client.disconnect(true);
+      return false;
+    }
+
+    const accType = payload?.ut; // DRIVER | PASSENGER
+    if (!accType) {
+      client.disconnect(true);
+      return false;
+    }
+
+
+    const provider =
+      accType === 'DRIVER'
+        ? 'DRIVERS'
+        : accType === 'PASSENGER'
+        ? 'PASSENGERS'
+        : null;
+
+    if (!provider) {
+      client.disconnect(true);
+      return false;
+    }
+
 
     const res = await this.mainSrv.callAction({
-      provider: 'DRIVERS',
+      provider,
       action: 'authorize',
       query: { token },
     });
 
-    if (!res?.data?.isAuthorized) return false;
+    if (!res?.data?.isAuthorized) {
+      client.disconnect(true);
+      return false;
+    }
 
+    if (res.data.isActive === false) {
+      client.disconnect(true);
+      return false;
+    }
 
-    client.data.driver = res.data.driver;
+    client.data.acc_type = accType;
     client.data.session = res.data.session;
+
+    if (accType === 'DRIVER') {
+      client.data.driver = res.data.driver;
+    }
+
+    if (accType === 'PASSENGER') {
+      client.data.passenger = res.data.passenger;
+    }
 
     return true;
   }
