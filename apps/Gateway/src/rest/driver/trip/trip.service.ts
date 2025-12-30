@@ -26,4 +26,25 @@ export class DriverTripService {
 
     return handleSrvCliResponse(res);
   }
+
+  async arrivedTrip(data: any) {
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'arrived',
+      query: data,
+    });
+
+    const trip = res.data;
+
+    // Notify passenger
+    this.socketGateway.server
+      .to(`passenger_${trip.passengerId}`)
+      .emit('trip:driver_arrived', {
+        tripId: trip.id,
+        driverId: trip.driverId,
+        arrivedAt: trip.arrivedAt,
+      });
+
+    return handleSrvCliResponse(res);
+  }
 }

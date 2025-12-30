@@ -27,6 +27,7 @@
     "@nestjs/microservices": "^11.1.8",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.1",
+    "@nestjs/websockets": "^11.1.11",
     "@socket.io/redis-adapter": "^8.3.0",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
