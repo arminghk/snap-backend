@@ -49,23 +49,43 @@ export class DriverTripService {
   }
 
   async startTrip(data: any) {
-  const res = await this.mainSrvCli.callAction({
-    provider: 'TRIPS',
-    action: 'start',
-    query: data,
-  });
-
-  const trip = res.data;
-
-  // 🔔 notify passenger
-  this.socketGateway.server
-    .to(`passenger_${trip.passengerId}`)
-    .emit('trip:started', {
-      tripId: trip.id,
-      driverId: trip.driverId,
-      startedAt: trip.startedAt,
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'start',
+      query: data,
     });
 
-  return handleSrvCliResponse(res);
-}
+    const trip = res.data;
+
+    // 🔔 notify passenger
+    this.socketGateway.server
+      .to(`passenger_${trip.passengerId}`)
+      .emit('trip:started', {
+        tripId: trip.id,
+        driverId: trip.driverId,
+        startedAt: trip.startedAt,
+      });
+
+    return handleSrvCliResponse(res);
+  }
+
+  async endTrip(data: any) {
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'end',
+      query: data,
+    });
+    const trip = res.data;
+
+    // 🔔 notify passenger
+    this.socketGateway.server
+      .to(`passenger_${trip.passengerId}`)
+      .emit('trip:ended', {
+        tripId: trip.id,
+        driverId: trip.driverId,
+        finishedAt: trip.finishedAt,
+      });
+
+    return handleSrvCliResponse(res);
+  }
 }
