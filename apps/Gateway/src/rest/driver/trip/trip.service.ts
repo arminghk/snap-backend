@@ -75,15 +75,35 @@ export class DriverTripService {
       action: 'end',
       query: data,
     });
+
     const trip = res.data;
 
-    // 🔔 notify passenger
     this.socketGateway.server
       .to(`passenger_${trip.passengerId}`)
       .emit('trip:ended', {
         tripId: trip.id,
         driverId: trip.driverId,
         finishedAt: trip.finishedAt,
+        finalFare: trip.finalFare,
+      });
+
+    return handleSrvCliResponse(res);
+  }
+
+  async cancelTrip(data: any) {
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'cancelByDriver',
+      query: data,
+    });
+
+    const trip = res.data;
+
+    this.socketGateway.server
+      .to(`passenger_${trip.passengerId}`)
+      .emit('trip:cancelled', {
+        tripId: trip.id,
+        cancelledBy: 'DRIVER',
       });
 
     return handleSrvCliResponse(res);

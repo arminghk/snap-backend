@@ -57,4 +57,13 @@ export class DriverTripController {
       driverId: req.driver.id,
     });
   }
+
+  @Post(':tripId/cancel')
+  @ApiOperation({ summary: 'Cancel trip by driver' })
+  async cancelTrip(@Param('tripId') tripId: string, @Request() req) {
+    return this.tripService.cancelTrip({
+      tripId,
+      driverId: req.driver.id,
+    });
+  }
 }

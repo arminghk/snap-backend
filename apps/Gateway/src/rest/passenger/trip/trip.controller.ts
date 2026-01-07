@@ -6,6 +6,7 @@ import {
   UseFilters,
   UseInterceptors,
   Request,
+  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PassengerAuthGuard } from '../auth/auth.guard';
@@ -14,7 +15,6 @@ import { ResponseInterceptor } from 'src/response/response.interceptors';
 import { PassengerTripService } from './trip.service';
 import { CreateTripInputDto } from 'src/dtos/passenger/trip.dto';
 
-
 @ApiTags('Passenger:Trip')
 @ApiBearerAuth('Authorization')
 @Controller('/trips')
@@ -22,17 +22,24 @@ import { CreateTripInputDto } from 'src/dtos/passenger/trip.dto';
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponseInterceptor)
 export class PassengerTripController {
-  constructor(
-    private readonly tripService: PassengerTripService,
-  ) {}
+  constructor(private readonly tripService: PassengerTripService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new trip' })
   async createTrip(@Body() body: CreateTripInputDto, @Request() req) {
-      const res =  this.tripService.createTrip({
-      passengerId: req.passenger.id, 
+    const res = this.tripService.createTrip({
+      passengerId: req.passenger.id,
       ...body,
     });
-    return res
+    return res;
+  }
+
+  @Post(':tripId/cancel')
+  @ApiOperation({ summary: 'Cancel trip by passenger' })
+  async cancelTrip(@Param('tripId') tripId: string, @Request() req) {
+    return this.tripService.cancelTrip({
+      tripId,
+      passengerId: req.passenger.id,
+    });
   }
 }

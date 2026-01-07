@@ -1,9 +1,6 @@
 import { DataType, Table, Column, Model } from 'sequelize-typescript';
 
-/* =====================
-   Trip Status Enum
-===================== */
- enum TripStatus {
+enum TripStatus {
   REQUESTED = 'REQUESTED',
   SEARCHING = 'SEARCHING',
   ACCEPTED = 'ACCEPTED',
@@ -22,7 +19,6 @@ export class Trip extends Model {
   /* =====================
      Primary Key
   ===================== */
-
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -33,123 +29,94 @@ export class Trip extends Model {
   /* =====================
      Relations
   ===================== */
-
   @Column({
     type: DataType.UUID,
     allowNull: false,
   })
-  passengerId: string;
+  declare passengerId: string;
 
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
-  driverId?: string;
+  declare driverId?: string;
 
   /* =====================
      Location
   ===================== */
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  declare originLat: number;
 
   @Column({
     type: DataType.FLOAT,
     allowNull: false,
   })
-  originLat: number;
+  declare originLng: number;
 
   @Column({
     type: DataType.FLOAT,
     allowNull: false,
   })
-  originLng: number;
+  declare destinationLat: number;
 
   @Column({
     type: DataType.FLOAT,
     allowNull: false,
   })
-  destinationLat: number;
-
-  @Column({
-    type: DataType.FLOAT,
-    allowNull: false,
-  })
-  destinationLng: number;
+  declare destinationLng: number;
 
   /* =====================
      Trip State
   ===================== */
-
   @Column({
     type: DataType.ENUM(...Object.values(TripStatus)),
     allowNull: false,
     defaultValue: TripStatus.REQUESTED,
   })
-  status: TripStatus;
+  declare status: TripStatus;
 
   /* =====================
      Fare - Estimate
-     (Calculated on CREATE)
   ===================== */
+  @Column(DataType.FLOAT)
+  declare estimatedDistanceKm?: number;
 
-  @Column({
-    type: DataType.FLOAT,
-    allowNull: true,
-  })
-  estimatedDistanceKm?: number;
+  @Column(DataType.INTEGER)
+  declare estimatedDurationMin?: number;
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  estimatedDurationMin?: number;
-
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  priceEstimate?: number;
+  @Column(DataType.INTEGER)
+  declare priceEstimate?: number;
 
   /* =====================
      Fare - Final
-     (Calculated on FINISH)
   ===================== */
+  @Column(DataType.FLOAT)
+  declare actualDistanceKm?: number;
 
-  @Column({
-    type: DataType.FLOAT,
-    allowNull: true,
-  })
-  actualDistanceKm?: number;
+  @Column(DataType.INTEGER)
+  declare actualDurationMin?: number;
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  actualDurationMin?: number;
-
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  finalFare?: number;
+  @Column(DataType.INTEGER)
+  declare finalFare?: number;
 
   /* =====================
      Timeline
   ===================== */
+  @Column(DataType.DATE)
+  declare acceptedAt?: Date;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: true,
-  })
-  acceptedAt?: Date;
+  @Column(DataType.DATE)
+  declare startedAt?: Date;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: true,
-  })
-  startedAt?: Date;
+  @Column(DataType.DATE)
+  declare finishedAt?: Date;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: true,
-  })
-  finishedAt?: Date;
+  @Column(DataType.DATE)
+  declare cancelledAt?: Date;
+
+  @Column(DataType.UUID)
+  declare cancelledBy?: string;
 }

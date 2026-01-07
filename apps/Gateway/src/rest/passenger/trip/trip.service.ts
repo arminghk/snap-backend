@@ -19,4 +19,24 @@ export class PassengerTripService {
     this.socketGateway.server.to('drivers').emit('trip:new', res.data);
     return handleSrvCliResponse(res);
   }
+
+
+  async cancelTrip(data: any) {
+  const res = await this.mainSrvCli.callAction({
+    provider: 'TRIPS',
+    action: 'cancelByPassenger',
+    query: data,
+  });
+
+  const trip = res.data;
+
+  this.socketGateway.server
+    .to(`drivers`)
+    .emit('trip:cancelled', {
+      tripId: trip.id,
+      cancelledBy: 'PASSENGER',
+    });
+
+  return handleSrvCliResponse(res);
+}
 }
