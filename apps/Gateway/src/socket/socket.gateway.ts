@@ -36,6 +36,7 @@ export class AppSocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     const { acc_type, driver, passenger } = client.data;
 
     if (acc_type === 'DRIVER') {
+      client.join('drivers');
       client.join(`driver_${driver.id}`);
       this.logger.log(`Driver ${driver.id} connected (socket ${client.id})`);
     }

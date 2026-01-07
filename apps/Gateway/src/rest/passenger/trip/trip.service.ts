@@ -16,7 +16,7 @@ export class PassengerTripService {
       action: 'create',
       query: data,
     });
-    this.socketGateway.server.emit('trip:new', res.data);
+    this.socketGateway.server.to('drivers').emit('trip:new', res.data);
     return handleSrvCliResponse(res);
   }
 }

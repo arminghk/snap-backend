@@ -6,41 +6,92 @@ import {
   SrvError,
 } from 'src/services/dto';
 import { Transaction } from 'sequelize';
-import { finished } from 'stream';
+import config from 'config';
 
 @Injectable()
 export class TripService {
+  private readonly fareConfig = config.get('fare');
   constructor(private readonly pg: PostgresService) {}
 
-  async create({
-    query,
-  }: ServiceClientContextDto): Promise<ServiceResponseData> {
-    const {
-      passengerId,
-      originLat,
-      originLng,
-      destinationLat,
-      destinationLng,
-    } = query;
+ async create({
+  query,
+}: ServiceClientContextDto): Promise<ServiceResponseData> {
+  const {
+    passengerId,
+    originLat,
+    originLng,
+    destinationLat,
+    destinationLng,
+  } = query;
 
-    if (!passengerId) {
-      throw new SrvError(HttpStatus.UNAUTHORIZED, 'Passenger not authorized');
-    }
-
-    const trip = await this.pg.models.Trip.create({
-      passengerId,
-      originLat,
-      originLng,
-      destinationLat,
-      destinationLng,
-      status: 'REQUESTED',
-    });
-
-    return {
-      message: 'Trip created successfully',
-      data: trip,
-    };
+  if (!passengerId) {
+    throw new SrvError(HttpStatus.UNAUTHORIZED, 'Passenger not authorized');
   }
+
+  /**
+   * ⚠️ موقتاً mock estimate
+   * بعداً اینو می‌بریم روی MapService (Google / Mapbox)
+   */
+  const estimatedDistanceKm = this.calculateDistanceKm(
+    originLat,
+    originLng,
+    destinationLat,
+    destinationLng,
+  );
+
+  const estimatedDurationMin = Math.ceil(estimatedDistanceKm * 2); // فرضی
+  const trafficLevel: 'low' | 'medium' | 'high' = 'medium';
+
+  const { baseFare, perKm, perMinute, trafficMultiplier } = this.fareConfig;
+
+  const rawFare =
+    baseFare +
+    estimatedDistanceKm * perKm +
+    estimatedDurationMin * perMinute;
+
+  const priceEstimate = Math.round(
+    rawFare * (trafficMultiplier[trafficLevel] || 1),
+  );
+
+  const trip = await this.pg.models.Trip.create({
+    passengerId,
+    originLat,
+    originLng,
+    destinationLat,
+    destinationLng,
+    priceEstimate,
+    status: 'REQUESTED',
+  });
+
+  return {
+    message: 'Trip created successfully',
+    data: trip,
+  };
+}
+private calculateDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
+  const R = 6371; // km
+  const dLat = this.deg2rad(lat2 - lat1);
+  const dLng = this.deg2rad(lng2 - lng1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(this.deg2rad(lat1)) *
+      Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((R * c).toFixed(2));
+}
+
+private deg2rad(deg: number): number {
+  return deg * (Math.PI / 180);
+}
 
   async accept({
     query,
